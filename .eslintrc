@@ -1,0 +1,20 @@
+{
+  "env": {
+    "mocha": true
+  },
+  "rules": {
+    "no-multi-spaces": "off",
+    "no-undef": "error",
+    "operator-linebreak": "off",
+    "no-multiple-empty-lines": "off",
+    "keyword-spacing": "warn",
+    "padded-blocks": "warn",
+    "space-before-function-paren": "warn",
+    "no-trailing-spaces": "warn",
+    "brace-style": [
+      "warn",
+      "stroustrup"
+    ]
+  },
+  "extends": "xo-space"
+}
