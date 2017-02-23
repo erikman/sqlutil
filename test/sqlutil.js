@@ -242,6 +242,17 @@ describe('sqlutil', () => {
       });
     });
 
+    it('should be possible to select using multiple matchers as separate find calls', () => {
+      return table
+        .find({name: 'key1'})
+        .find({value: 42})
+        .get().then(row => {
+          assert.isObject(row);
+          assert.equal(row.name, 'key1');
+          assert.equal(row.value, 42);
+        });
+    });
+
     it('should be possible select using binary operators', () => {
       let rowCount = 0;
       return table.find({value: {$le: 42}}).each(row => {
