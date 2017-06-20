@@ -54,6 +54,18 @@ describe('sqlutil', () => {
         });
     });
 
+    it('should be possible to count number of rows in a table', () => {
+      return expect(table.find().count()).to.eventually.equal(3);
+    });
+
+    it('should be possible to count number of rows from a query', () => {
+      return expect(table.find({name: 'key1'}).count()).to.eventually.equal(1);
+    });
+
+    it('should be possible to count number of rows from an empty query', () => {
+      return expect(table.find({name: 'non-existing-key'}).count()).to.eventually.equal(0);
+    });
+
     it('should be possible to have default values for columns', () => {
       let defaultValueTable = new sqlutil.Table(db, {
         name: 'defaultValueTable',
