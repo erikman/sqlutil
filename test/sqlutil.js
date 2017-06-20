@@ -176,6 +176,14 @@ describe('sqlutil', () => {
       });
     });
 
+    it('should be possible to limit number of rows retreived', () => {
+      return table.find({value: 42}).limit(1).all().then(rows => {
+        assert.isArray(rows);
+        assert.equal(rows.length, 1);
+        assert.equal(rows[0].name, 'key1');
+      });
+    });
+
     it('should be possible to iterate over rows from the table', () => {
       let rowCount = 0;
       return table.find({value: 42}).each(row => {
