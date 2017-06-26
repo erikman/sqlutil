@@ -79,14 +79,14 @@ describe('sqlutil', () => {
       return defaultValueTable.createTable()
         .then(() => defaultValueTable.insert({name: 'keyWithValue', value: 1.0}))
         .then(() => defaultValueTable.insert({name: 'keyWithoutValue'}))
-        .then(() => defaultValueTable.find({name: 'keyWithValue'}).get()
-              .then(keyWithValue => {
-                assert.equal(keyWithValue.value, 1.0);
-              }))
-        .then(() => defaultValueTable.find({name: 'keyWithoutValue'}).get()
-              .then(keyWithoutValue => {
-                assert.equal(keyWithoutValue.value, 3.0);
-              }));
+        .then(() => {
+          return expect(defaultValueTable.find({name: 'keyWithValue'}).get())
+            .to.eventually.deep.equal({id: 1, name: 'keyWithValue', value: 1.0});
+        })
+        .then(() => {
+          return expect(defaultValueTable.find({name: 'keyWithoutValue'}).get())
+            .to.eventually.deep.equal({id: 2, name: 'keyWithoutValue', value: 3.0});
+        });
     });
 
     // Zero needs extra care since it is also 'false'
@@ -103,14 +103,14 @@ describe('sqlutil', () => {
       return defaultValueTable.createTable()
         .then(() => defaultValueTable.insert({name: 'keyWithValue', value: 1}))
         .then(() => defaultValueTable.insert({name: 'keyWithoutValue'}))
-        .then(() => defaultValueTable.find({name: 'keyWithValue'}).get()
-              .then(keyWithValue => {
-                assert.equal(keyWithValue.value, 1);
-              }))
-        .then(() => defaultValueTable.find({name: 'keyWithoutValue'}).get()
-              .then(keyWithoutValue => {
-                assert.equal(keyWithoutValue.value, 0);
-              }));
+        .then(() => {
+          return expect(defaultValueTable.find({name: 'keyWithValue'}).get())
+            .to.eventually.deep.equal({id: 1, name: 'keyWithValue', value: 1});
+        })
+        .then(() => {
+          return expect(defaultValueTable.find({name: 'keyWithoutValue'}).get())
+            .to.eventually.deep.equal({id: 2, name: 'keyWithoutValue', value: 0});
+        });
     });
 
     it('should be possible to have non-unique indices', () => {
@@ -186,7 +186,7 @@ describe('sqlutil', () => {
     });
 
     it('should be possible to order the result rows ascending', () => {
-      return table.find({value: 42}).orderBy([{'name': 1}]).all().then(rows => {
+      return table.find({value: 42}).orderBy([{name: 1}]).all().then(rows => {
         assert.isArray(rows);
         assert.equal(rows.length, 2);
         assert.equal(rows[0].name, 'key1');
@@ -195,7 +195,7 @@ describe('sqlutil', () => {
     });
 
     it('should be possible to order the result rows descending', () => {
-      return table.find({value: 42}).orderBy([{'name': -1}]).all().then(rows => {
+      return table.find({value: 42}).orderBy([{name: -1}]).all().then(rows => {
         assert.isArray(rows);
         assert.equal(rows.length, 2);
         assert.equal(rows[0].name, 'key2');
@@ -351,13 +351,13 @@ describe('sqlutil', () => {
         assert.equal(row.value, 33);
 
         // Update the row
-        return table.insertUpdateUnique({
+        return expect(table.insertUpdateUnique({
           id: row.id,
           value: 34
-        }).then(updatedRow => {
-          assert.equal(updatedRow.id, row.id);
-          assert.equal(updatedRow.name, 'new-unique-key');
-          assert.equal(updatedRow.value, 34);
+        })).to.eventually.deep.equal({
+          id: row.id,
+          name: 'new-unique-key',
+          value: 34
         });
       });
     });
@@ -376,11 +376,12 @@ describe('sqlutil', () => {
     it('should be allowed to create a table multiple times', () => {
       return table.createTable().then(() => {
         // Verify that old data still remains
-        return table.find({name: 'key1'}).get().then(row => {
-          assert.isObject(row);
-          assert.equal(row.name, 'key1');
-          assert.equal(row.value, 42);
-        });
+        return expect(table.find({name: 'key1'}).get())
+          .to.eventually.deep.equal({
+            id: 8,
+            name: 'key1',
+            value: 42
+          });
       });
     });
 
@@ -397,12 +398,13 @@ describe('sqlutil', () => {
 
       return newTable.createTable().then(() => {
         // Verify that old data still remains
-        return newTable.find({name: 'key1'}).get().then(row => {
-          assert.isObject(row);
-          assert.equal(row.name, 'key1');
-          assert.equal(row.value, 42);
-          assert.equal(row.value2, 3.0); // gets the default value for old rows
-        });
+        return expect(newTable.find({name: 'key1'}).get())
+          .to.eventually.deep.equal({
+            id: 8,
+            name: 'key1',
+            value: 42,
+            value2: 3.0 // gets the default value for old rows
+          });
       });
     });
 
@@ -418,12 +420,12 @@ describe('sqlutil', () => {
 
       return newTable.createTable().then(() => {
         // Verify that old data still remains
-        return newTable.find({name: 'key1'}).get().then(row => {
-          assert.isObject(row);
-          assert.equal(row.name, 'key1');
-          assert.equal(row.value, 42);
-          assert.isUndefined(row.value2); // Column has been removed
-        });
+        return expect(newTable.find({name: 'key1'}).get())
+          .to.eventually.deep.equal({
+            id: 8,
+            name: 'key1',
+            value: 42
+          });
       });
     });
   });

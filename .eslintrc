@@ -14,7 +14,8 @@
     "brace-style": [
       "warn",
       "stroustrup"
-    ]
+    ],
+    "max-depth": "off"
   },
   "extends": "xo-space"
 }
