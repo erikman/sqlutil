@@ -2,6 +2,7 @@
   "name": "sqlutil",
   "version": "1.0.0",
   "description": "Wrapper around sqlite for structured queries",
+  "homepage": "https://github.com/erikman/sqlutil",
   "main": "dist/index.js",
   "directories": {
     "test": "test"
@@ -18,8 +19,12 @@
     "database",
     "sql"
   ],
-  "author": "Erik Man",
+  "author": {
+    "name": "Erik Man",
+    "email": "goodbyte100@yahoo.com"
+  },
   "license": "MIT",
+  "repository": "erikman/sqlutil",
   "devDependencies": {
     "babel-core": "^6.22.1",
     "babel-eslint": "^7.1.1",
