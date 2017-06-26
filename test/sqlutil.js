@@ -176,6 +176,33 @@ describe('sqlutil', () => {
       });
     });
 
+    it('should be possible to order the result rows without specifying order (default is ascending)', () => {
+      return table.find({value: 42}).orderBy(['name']).all().then(rows => {
+        assert.isArray(rows);
+        assert.equal(rows.length, 2);
+        assert.equal(rows[0].name, 'key1');
+        assert.equal(rows[1].name, 'key2');
+      });
+    });
+
+    it('should be possible to order the result rows ascending', () => {
+      return table.find({value: 42}).orderBy([{'name': 1}]).all().then(rows => {
+        assert.isArray(rows);
+        assert.equal(rows.length, 2);
+        assert.equal(rows[0].name, 'key1');
+        assert.equal(rows[1].name, 'key2');
+      });
+    });
+
+    it('should be possible to order the result rows descending', () => {
+      return table.find({value: 42}).orderBy([{'name': -1}]).all().then(rows => {
+        assert.isArray(rows);
+        assert.equal(rows.length, 2);
+        assert.equal(rows[0].name, 'key2');
+        assert.equal(rows[1].name, 'key1');
+      });
+    });
+
     it('should be possible to limit number of rows retreived', () => {
       return table.find({value: 42}).limit(1).all().then(rows => {
         assert.isArray(rows);
