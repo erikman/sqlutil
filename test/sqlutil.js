@@ -329,26 +329,30 @@ describe('sqlutil', () => {
     });
 
     it('should be possible to update rows', () => {
-      return table.insertUpdateUnique({name: 'key1', value: 50}).then(row => {
-        assert.isObject(row);
-        assert.equal(row.name, 'key1');
-        assert.equal(row.value, 50);
-      });
+      return expect(table.insertUpdateUnique({name: 'key1', value: 50}))
+        .to.eventually.deep.equal({
+          id: 1,
+          name: 'key1',
+          value: 50
+        });
     });
 
     it('should be possible to update rows with null values', () => {
-      return table.insertUpdateUnique({name: 'key1', value: null}).then(row => {
-        assert.isObject(row);
-        assert.equal(row.name, 'key1');
-        assert.isNull(row.value);
-      });
+      return expect(table.insertUpdateUnique({name: 'key1', value: null}))
+        .to.eventually.deep.equal({
+          id: 1,
+          name: 'key1',
+          value: null
+        });
     });
 
     it('should be possible to create unique rows', () => {
       return table.insertUpdateUnique({name: 'new-unique-key', value: 33}).then(row => {
-        assert.typeOf(row.id, 'Number');
-        assert.equal(row.name, 'new-unique-key');
-        assert.equal(row.value, 33);
+        expect(row).to.deep.equal({
+          id: 7,
+          name: 'new-unique-key',
+          value: 33
+        });
 
         // Update the row
         return expect(table.insertUpdateUnique({
