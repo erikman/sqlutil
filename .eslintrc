@@ -15,7 +15,8 @@
       "warn",
       "stroustrup"
     ],
-    "max-depth": "off"
+    "max-depth": "off",
+    "no-warning-comments": "off"
   },
   "extends": "xo-space"
 }
