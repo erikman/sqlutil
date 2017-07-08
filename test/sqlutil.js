@@ -113,6 +113,29 @@ describe('sqlutil', () => {
         });
     });
 
+    it('should be possible to have default value \'\' for columns', () => {
+      let defaultValueTable = new sqlutil.Table(db, {
+        name: 'defaultValueTableEmptyString',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true},
+          value: {type: sqlutil.DataType.TEXT, notNull: true, defaultValue: ''}
+        }
+      });
+
+      return defaultValueTable.createTable()
+        .then(() => defaultValueTable.insert({name: 'keyWithValue', value: '1'}))
+        .then(() => defaultValueTable.insert({name: 'keyWithoutValue'}))
+        .then(() => {
+          return expect(defaultValueTable.find({name: 'keyWithValue'}).get())
+            .to.eventually.deep.equal({id: 1, name: 'keyWithValue', value: '1'});
+        })
+        .then(() => {
+          return expect(defaultValueTable.find({name: 'keyWithoutValue'}).get())
+            .to.eventually.deep.equal({id: 2, name: 'keyWithoutValue', value: ''});
+        });
+    });
+
     it('should be possible to have non-unique indices', () => {
       let indexTable = new sqlutil.Table(db, {
         name: 'indexTable',
