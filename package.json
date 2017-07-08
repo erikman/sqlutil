@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "babel --compact true --minified --source-maps false -d dist/ lib",
+    "build:debug": "babel -d dist/ lib",
     "lint": "eslint lib test",
     "test": "mocha --compilers js:babel-core/register test",
     "prepublish": "npm run build"
