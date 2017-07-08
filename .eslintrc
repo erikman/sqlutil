@@ -16,6 +16,7 @@
       "stroustrup"
     ],
     "max-depth": "off",
+    "max-nested-callbacks": "off",
     "no-warning-comments": "off"
   },
   "extends": "xo-space"

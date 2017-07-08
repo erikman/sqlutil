@@ -182,6 +182,40 @@ describe('sqlutil', () => {
       return expect(indexTable.createTable()).to.eventually.be.rejected;
     });
 
+    it('should be possible to have foreign keys between tables', () => {
+      return db.enableForeignKeys().then(() => {
+        let parentTable = new sqlutil.Table(db, {
+          name: 'parent',
+          columns: {
+            id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+            name: {type: sqlutil.DataType.TEXT, unique: true}
+          }
+        });
+
+        let childTable = new sqlutil.Table(db, {
+          name: 'child',
+          columns: {
+            id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+            value: {type: sqlutil.DataType.TEXT, unique: true},
+            parentId: {type: sqlutil.DataType.INTEGER}
+          },
+          foreignKeys: [
+            {from: 'parentId', references: {parent: 'id'}}
+          ]
+        });
+
+        return Promise.all([
+          parentTable.createTable(),
+          childTable.createTable()
+        ]).then(() => {
+          // Insert a parent value
+          return parentTable.insert({id: 1, name: 'Banan'})
+            .then(() => childTable.insert({parentId: 1, value: 'Apa'}))
+            .then(() => childTable.insert({parentId: 1, value: 'Ape'}));
+        });
+      });
+    });
+
     it('should be possible to retrieve single rows from the table', () => {
       return table.find({name: 'key1'}).get().then(row => {
         assert.isObject(row);
