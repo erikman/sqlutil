@@ -76,7 +76,70 @@ describe('table with foreign keys', () => {
       });
   });
 
-  it('should be possible to add foreign keys to a table');
-  it('table should only be recreated when needed');
-  it('should be possible to update table with foreign key target');
+  it('should be possible to add foreign keys to a table', () => {
+    let newChildTable1 = new sqlutil.Table(db, {
+      name: 'newChild',
+      columns: {
+        id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+        value: {type: sqlutil.DataType.TEXT, unique: true},
+        parentId: {type: sqlutil.DataType.INTEGER}
+      }
+    });
+
+    let newChildTable2 = new sqlutil.Table(db, {
+      name: 'newChild',
+      columns: {
+        id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+        value: {type: sqlutil.DataType.TEXT, unique: true},
+        parentId: {type: sqlutil.DataType.INTEGER}
+      },
+      foreignKeys: [
+        {from: 'parentId', references: {parent: 'id'}}
+      ]
+    });
+
+    return newChildTable1.createTable()
+      .then(status => {
+        expect(status.wasCreated).to.be.true;
+        return newChildTable2.createTable();
+      })
+      .then(status => {
+        expect(status.wasRecreated).to.be.true;
+      });
+  });
+
+  it('table should only be recreated when needed', () => {
+    let newChildTable = new sqlutil.Table(db, {
+      name: 'child',
+      columns: {
+        id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+        value: {type: sqlutil.DataType.TEXT, unique: true},
+        parentId: {type: sqlutil.DataType.INTEGER}
+      },
+      foreignKeys: [
+        {from: 'parentId', references: {parent: 'id'}}
+      ]
+    });
+
+    return newChildTable.createTable()
+      .then(status => expect(status.wasRecreated).to.be.false);
+  });
+
+  it('should be possible to update table with foreign key target', () => {
+    return insertSomeData()
+      .then(() => {
+        let newParentTable = new sqlutil.Table(db, {
+          name: 'parent',
+          columns: {
+            id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+            name: {type: sqlutil.DataType.TEXT, unique: true},
+            value: {type: sqlutil.DataType.TEXT}
+          }
+        });
+
+        return newParentTable.createTable()
+          .then(status => expect(status.wasRecreated).to.be.true)
+          .then(() => parentTable.insert({id: 2, name: 'Apple', value: 42}));
+      });
+  });
 });
