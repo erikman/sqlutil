@@ -78,4 +78,5 @@ describe('table with foreign keys', () => {
 
   it('should be possible to add foreign keys to a table');
   it('table should only be recreated when needed');
+  it('should be possible to update table with foreign key target');
 });
