@@ -38,10 +38,8 @@ describe('table with foreign keys', () => {
 
     return db.open(':memory:')
       .then(() => db.enableForeignKeys())
-      .then(() => Promise.all([
-        parentTable.createTable(),
-        childTable.createTable()
-      ]));
+      .then(() => parentTable.createTable())
+      .then(() => childTable.createTable());
   });
 
   function insertSomeData() {
