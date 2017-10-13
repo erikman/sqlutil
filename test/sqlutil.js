@@ -33,6 +33,16 @@ describe('sqlutil', () => {
       return table.createTable();
     });
 
+    it('should not be possible to create an existing table', () => {
+      return expect(table.createTable()).to.eventually.be.rejected;
+    });
+
+    it('should be possible to create an existing table with if not exists', () => {
+      return expect(table.createTableIfNotExists()).to.eventually.
+        deep.equal({wasCreated: false});
+    });
+
+
     it('should reject creating tables with unknown data types', () => {
       let badTable = new sqlutil.Table(db, {
         name: 'badtable',
@@ -434,8 +444,8 @@ describe('sqlutil', () => {
       });
     });
 
-    it('should be allowed to create a table multiple times', () => {
-      return table.createTable().then(() => {
+    it('should be possible to create a table multiple times with createTableIfNotExists', () => {
+      return table.createTableIfNotExists().then(() => {
         // Verify that old data still remains
         return expect(table.find({name: 'key1'}).get())
           .to.eventually.deep.equal({
@@ -446,7 +456,11 @@ describe('sqlutil', () => {
       });
     });
 
-    it('should be possible to add columns to the table', () => {
+    it('should give an error to create a table that already exists', () => {
+      return expect(table.createTable()).to.eventually.be.rejected;
+    });
+
+    it('should not be possible to add columns to the table', () => {
       let newTable = new sqlutil.Table(db, {
         name: 'testtable', // same name as before
         columns: {
@@ -457,37 +471,19 @@ describe('sqlutil', () => {
         }
       });
 
-      return newTable.createTable().then(() => {
-        // Verify that old data still remains
-        return expect(newTable.find({name: 'key1'}).get())
-          .to.eventually.deep.equal({
-            id: 8,
-            name: 'key1',
-            value: 42,
-            value2: 3.0 // gets the default value for old rows
-          });
-      });
+      return expect(newTable.createTableIfNotExists()).to.eventually.be.rejected;
     });
 
-    it('should be possible to remove columns from the table', () => {
+    it('should not be possible to remove columns from the table', () => {
       let newTable = new sqlutil.Table(db, {
         name: 'testtable', // same name as before
         columns: {
           id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
-          name: {type: sqlutil.DataType.TEXT, unique: true},
-          value: {type: sqlutil.DataType.FLOAT}
+          name: {type: sqlutil.DataType.TEXT, unique: true}
         }
       });
 
-      return newTable.createTable().then(() => {
-        // Verify that old data still remains
-        return expect(newTable.find({name: 'key1'}).get())
-          .to.eventually.deep.equal({
-            id: 8,
-            name: 'key1',
-            value: 42
-          });
-      });
+      return expect(newTable.createTableIfNotExists()).to.eventually.be.rejected;
     });
   });
 

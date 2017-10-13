@@ -56,7 +56,7 @@ describe('table with foreign keys', () => {
     return expect(childTable.insert({parentId: 42, value: 'Ape'})).to.eventually.be.rejectedWith(/FOREIGN KEY constraint failed/);
   });
 
-  it('should be possible to remove foreign keys from a table', () => {
+  it('should not be possible to remove foreign keys from a table', () => {
     return insertSomeData()
       .then(() => {
         let newChildTable = new sqlutil.Table(db, {
@@ -68,9 +68,8 @@ describe('table with foreign keys', () => {
           }
         });
 
-        return newChildTable.createTable()
-          .then(status => expect(status.wasRecreated).to.be.true)
-          .then(() => newChildTable.insert({parentId: 42, value: 'Elephant'}));
+        return expect(newChildTable.createTableIfNotExists())
+          .to.eventually.be.rejected;
       });
   });
 
@@ -96,14 +95,11 @@ describe('table with foreign keys', () => {
       ]
     });
 
-    return newChildTable1.createTable()
+    return newChildTable1.createTableIfNotExists()
       .then(status => {
         expect(status.wasCreated).to.be.true;
-        return newChildTable2.createTable();
+        return expect(newChildTable2.createTable()).to.eventually.be.rejected;
       })
-      .then(status => {
-        expect(status.wasRecreated).to.be.true;
-      });
   });
 
   it('table should only be recreated when needed', () => {
@@ -119,25 +115,7 @@ describe('table with foreign keys', () => {
       ]
     });
 
-    return newChildTable.createTable()
-      .then(status => expect(status.wasRecreated).to.be.false);
-  });
-
-  it('should be possible to update table with foreign key target', () => {
-    return insertSomeData()
-      .then(() => {
-        let newParentTable = new sqlutil.Table(db, {
-          name: 'parent',
-          columns: {
-            id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
-            name: {type: sqlutil.DataType.TEXT, unique: true},
-            value: {type: sqlutil.DataType.TEXT}
-          }
-        });
-
-        return newParentTable.createTable()
-          .then(status => expect(status.wasRecreated).to.be.true)
-          .then(() => parentTable.insert({id: 2, name: 'Apple', value: 42}));
-      });
+    return newChildTable.createTableIfNotExists()
+      .then(status => expect(status.wasCreated).to.be.false);
   });
 });
