@@ -38,8 +38,8 @@ describe('sqlutil', () => {
     });
 
     it('should be possible to create an existing table with if not exists', () => {
-      return expect(table.createTableIfNotExists()).to.eventually.
-        deep.equal({wasCreated: false});
+      return expect(table.createTableIfNotExists()).to.eventually
+        .deep.equal({wasCreated: false});
     });
 
 

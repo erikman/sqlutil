@@ -1,6 +1,5 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import streamutil from 'streamutil';
 
 import * as sqlutil from '../lib/sqlutil';
 
@@ -9,7 +8,6 @@ let expect = chai.expect;
 
 describe('table with foreign keys', () => {
   let db;
-  let table;
   let parentTable;
   let childTable;
 
@@ -47,7 +45,7 @@ describe('table with foreign keys', () => {
       .then(() => childTable.insert({parentId: 1, value: 'Apa'}))
       .then(() => childTable.insert({parentId: 1, value: 'Ape'}));
   }
-  
+
   it('should be possible to insert valid rows', () => {
     return insertSomeData();
   });
@@ -97,9 +95,9 @@ describe('table with foreign keys', () => {
 
     return newChildTable1.createTableIfNotExists()
       .then(status => {
-        expect(status.wasCreated).to.be.true;
+        expect(status.wasCreated).to.equal(true);
         return expect(newChildTable2.createTable()).to.eventually.be.rejected;
-      })
+      });
   });
 
   it('table should only be recreated when needed', () => {
