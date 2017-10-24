@@ -45,6 +45,14 @@ describe('table with foreign keys', () => {
       .then(() => childTable.insert({parentId: 1, value: 'Ape'}));
   }
 
+  it('should be possible to enable support for foreign keys', () => {
+    return expect(db.isForeignKeysEnabled(), 'initially disabled').to.eventually.equal(false)
+      .then(() => db.enableForeignKeys())
+      .then(() => expect(db.isForeignKeysEnabled(), 'enabled after requested').to.eventually.equal(true))
+      .then(() => db.enableForeignKeys(false))
+      .then(() => expect(db.isForeignKeysEnabled(), 'disabled after requested').to.eventually.equal(false));
+  });
+
   it('should be possible to insert valid rows', () => {
     return db.enableForeignKeys().then(() => insertSomeData());
   });
