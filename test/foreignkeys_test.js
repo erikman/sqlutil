@@ -35,7 +35,6 @@ describe('table with foreign keys', () => {
     });
 
     return db.open(':memory:')
-      .then(() => db.enableForeignKeys())
       .then(() => parentTable.createTable())
       .then(() => childTable.createTable());
   });
@@ -46,15 +45,36 @@ describe('table with foreign keys', () => {
       .then(() => childTable.insert({parentId: 1, value: 'Ape'}));
   }
 
+  it('should be possible to enable support for foreign keys', () => {
+    return expect(db.isForeignKeysEnabled(), 'initially disabled').to.eventually.equal(false)
+      .then(() => db.enableForeignKeys())
+      .then(() => expect(db.isForeignKeysEnabled(), 'enabled after requested').to.eventually.equal(true))
+      .then(() => db.enableForeignKeys(false))
+      .then(() => expect(db.isForeignKeysEnabled(), 'disabled after requested').to.eventually.equal(false));
+  });
+
   it('should be possible to insert valid rows', () => {
-    return insertSomeData();
+    return db.enableForeignKeys().then(() => insertSomeData());
   });
 
-  it('should not be possible to insert foreign key validations', () => {
-    return expect(childTable.insert({parentId: 42, value: 'Ape'})).to.eventually.be.rejectedWith(/FOREIGN KEY constraint failed/);
+  it('should be possible to insert foreign key validations when foreign keys are disabled', () => {
+    return expect(childTable.insert({parentId: 42, value: 'Ape'}))
+      .to.eventually.be.fulfilled;
   });
 
-  it('should not be possible to remove foreign keys from a table', () => {
+  it('should not be possible to insert invalid foreign keys when foreign keys are enabled', () => {
+    return db.enableForeignKeys().then(() => {
+      return expect(childTable.insert({parentId: 42, value: 'Ape'}))
+        .to.eventually.be.rejectedWith(/FOREIGN KEY constraint failed/);
+    });
+  });
+
+  it('should not be possible to update table when foreign keys are enabled', () => {
+    return db.enableForeignKeys()
+      .then(() => expect(childTable.createOrUpdateTable()).to.eventually.be.rejected);
+  });
+
+  it('should be possible to remove foreign keys from a table', () => {
     return insertSomeData()
       .then(() => {
         let newChildTable = new sqlutil.Table(db, {
@@ -66,8 +86,8 @@ describe('table with foreign keys', () => {
           }
         });
 
-        return expect(newChildTable.createTableIfNotExists())
-          .to.eventually.be.rejected;
+        return expect(newChildTable.createOrUpdateTable())
+          .to.eventually.deep.equal({wasCreated: false, wasUpdated: true});
       });
   });
 
@@ -93,11 +113,9 @@ describe('table with foreign keys', () => {
       ]
     });
 
-    return newChildTable1.createTableIfNotExists()
-      .then(status => {
-        expect(status.wasCreated).to.equal(true);
-        return expect(newChildTable2.createTable()).to.eventually.be.rejected;
-      });
+    return newChildTable1.createTable()
+      .then(() => expect(newChildTable2.createOrUpdateTable())
+            .to.eventually.deep.equal({wasCreated: false, wasUpdated: true}));
   });
 
   it('table should only be recreated when needed', () => {
@@ -115,5 +133,24 @@ describe('table with foreign keys', () => {
 
     return newChildTable.createTableIfNotExists()
       .then(status => expect(status.wasCreated).to.be.false);
+  });
+
+  it('should be possible to update parent table when foreign keys are disabled', () => {
+    let newParentTable = new sqlutil.Table(db, {
+      name: 'parent',
+      columns: {
+        id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+        name: {type: sqlutil.DataType.TEXT, unique: true},
+        value: {type: sqlutil.DataType.FLOAT, defaultValue: 3.0}
+      }
+    });
+
+    return insertSomeData()
+      .then(() => expect(newParentTable.createOrUpdateTable())
+            .to.eventually.deep.equal({wasCreated: false, wasUpdated: true}))
+      .then(() => expect(newParentTable.find({name: 'Banan'}).get())
+            .to.eventually.deep.equal({id: 1, name: 'Banan', value: 3}))
+      .then(() => expect(childTable.find({value: 'Apa'}).get())
+            .to.eventually.deep.equal({id: 1, value: 'Apa', parentId: 1}));
   });
 });
