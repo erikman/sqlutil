@@ -296,9 +296,9 @@ describe('sqlutil', () => {
     });
 
     it('should be possible to stream rows from the table', () => {
-      let sqlStream = insertSomeData()
+      return insertSomeData()
           .then(() => {
-            table.find({value: 42}).stream();
+            let sqlStream = table.find({value: 42}).stream();
             return assert.eventually.lengthOf(streamutil.streamToArray(sqlStream), 2);
           });
     });
@@ -317,7 +317,13 @@ describe('sqlutil', () => {
         sqlWriter
       ]);
 
-      return streamutil.waitForStream(sqlPipeline);
+      return streamutil.waitForStream(sqlPipeline)
+        .then(() => expect(table.find().orderBy(['name']).all())
+              .to.eventually.deep.equal([
+                {id: 1, name: 'key5', value: 62},
+                {id: 2, name: 'key6', value: 63},
+                {id: 3, name: 'key7', value: 64}
+              ]));
     });
 
     it('should be possible to lookup unique fields with a stream', () => {
