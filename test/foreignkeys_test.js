@@ -62,10 +62,16 @@ describe('table with foreign keys', () => {
       .to.eventually.be.fulfilled;
   });
 
-  it('should not be possible to insert foreign key validations when foreign keys are enabled', () => {
+  it('should not be possible to insert invalid foreign keys when foreign keys are enabled', () => {
     return db.enableForeignKeys().then(() => {
-      return expect(childTable.insert({parentId: 42, value: 'Ape'})).to.eventually.be.rejectedWith(/FOREIGN KEY constraint failed/);
+      return expect(childTable.insert({parentId: 42, value: 'Ape'}))
+        .to.eventually.be.rejectedWith(/FOREIGN KEY constraint failed/);
     });
+  });
+
+  it('should not be possible to update table when foreign keys are enabled', () => {
+    return db.enableForeignKeys()
+      .then(() => expect(childTable.createOrUpdateTable()).to.eventually.be.rejected);
   });
 
   it('should be possible to remove foreign keys from a table', () => {
@@ -143,6 +149,8 @@ describe('table with foreign keys', () => {
       .then(() => expect(newParentTable.createOrUpdateTable())
             .to.eventually.deep.equal({wasCreated: false, wasUpdated: true}))
       .then(() => expect(newParentTable.find({name: 'Banan'}).get())
-            .to.eventually.deep.equal({id: 1, name: 'Banan'}));
+            .to.eventually.deep.equal({id: 1, name: 'Banan', value: 3}))
+      .then(() => expect(childTable.find({value: 'Apa'}).get())
+            .to.eventually.deep.equal({id: 1, value: 'Apa', parentId: 1}));
   });
 });
