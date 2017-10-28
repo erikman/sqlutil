@@ -8,7 +8,7 @@ welcome.
 
 ## Installation
 
-```
+```bash
 npm install sqlutil
 ```
 
@@ -16,7 +16,7 @@ npm install sqlutil
 
 see test suite for more:
 
-```
+```javascript
 import sqlutil from 'sqlutil';
 import Promise from 'bluebird';
 
@@ -42,7 +42,7 @@ db.open(':memory:').then(() => {
 ```
 
 We can perform queries on a table:
-```
+```javascript
 table.find({name: 'key1'}).get()
   .then(row => {
     assert.equal(row.value, 42);
@@ -50,6 +50,6 @@ table.find({name: 'key1'}).get()
 ```
 
 And we can get a stream of rows
-```
+```javascript
 table.find({value: {$gt: 42}}).stream();
 ```
