@@ -30,6 +30,10 @@ describe('sqlutil', () => {
 
       return table.createTable();
     });
+
+    it('should be possible to close the database', () => {
+      return db.close();
+    });
   });
 
   describe('table', () => {
