@@ -1,6 +1,6 @@
 {
   "name": "sqlutil",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Wrapper around sqlite for structured queries",
   "homepage": "https://github.com/erikman/sqlutil",
   "main": "dist/index.js",
