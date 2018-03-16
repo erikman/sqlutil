@@ -176,6 +176,24 @@ describe('sqlutil', () => {
         });
     });
 
+    it('should be possible to specify collate for columns', () => {
+      let collateTable = new sqlutil.Table(db, {
+        name: 'collateTable',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true, collate: 'nocase'},
+          value: {type: sqlutil.DataType.FLOAT, notNull: true, index: true}
+        }
+      });
+
+      return collateTable.createTable()
+        .then(() => collateTable.insert({name: 'a', value: 1.0}))
+        .then(() => collateTable.find({name: 'A'}).get())
+        .then(row => {
+          expect(row).to.deep.equal({id: 1, name: 'a', value: 1.0});
+        });
+    });
+
     it('should be possible to have non-unique indices', () => {
       let indexTable = new sqlutil.Table(db, {
         name: 'indexTable',
