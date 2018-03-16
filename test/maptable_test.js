@@ -6,7 +6,6 @@ import * as sqlutil from '../lib';
 chai.use(chaiAsPromised);
 
 let assert = chai.assert;
-let expect = chai.expect;
 
 describe('MapTable', () => {
   let db;
