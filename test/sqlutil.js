@@ -2,7 +2,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import streamutil from 'streamutil';
 
-import * as sqlutil from '../lib/sqlutil';
+import * as sqlutil from '../lib';
 
 chai.use(chaiAsPromised);
 
@@ -173,6 +173,24 @@ describe('sqlutil', () => {
         .then(() => {
           return expect(defaultValueTable.find({name: 'keyWithoutValue'}).get())
             .to.eventually.deep.equal({id: 2, name: 'keyWithoutValue', value: ''});
+        });
+    });
+
+    it('should be possible to specify collate for columns', () => {
+      let collateTable = new sqlutil.Table(db, {
+        name: 'collateTable',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true, collate: 'nocase'},
+          value: {type: sqlutil.DataType.FLOAT, notNull: true, index: true}
+        }
+      });
+
+      return collateTable.createTable()
+        .then(() => collateTable.insert({name: 'a', value: 1.0}))
+        .then(() => collateTable.find({name: 'A'}).get())
+        .then(row => {
+          expect(row).to.deep.equal({id: 1, name: 'a', value: 1.0});
         });
     });
 
@@ -532,43 +550,6 @@ describe('sqlutil', () => {
                            .to.eventually.deep.equal({wasCreated: false, wasUpdated: true}))
         .then(() => expect(newTable.find({name: 'key3'}).get())
                            .to.eventually.deep.equal({id: 3, name: 'key3'}));
-    });
-  });
-
-  describe('MapTable', () => {
-    let mapTable;
-
-    it('can be constructed', () => {
-      mapTable = new sqlutil.MapTable(db, 'testMapTable');
-      return mapTable.create();
-    });
-
-    it('should be possible to add values to the map', () => {
-      return Promise.all([
-        mapTable.set('key1', 'value1'),
-        mapTable.set('key2', 'value2'),
-        mapTable.set('key3', 'value3')
-      ]);
-    });
-
-    it('should be possible to retrieve values from the map', () => {
-      return mapTable.get('key1').then(value => {
-        assert.equal(value, 'value1');
-      });
-    });
-
-    it('should not return any values for undefined keys', () => {
-      return mapTable.get('undefined key').then(value => {
-        assert.typeOf(value, 'undefined');
-      });
-    });
-
-    it('should be possible to update keys in the map', () => {
-      return mapTable.set('key1', 'updated value1')
-        .then(() => mapTable.get('key1'))
-        .then(value => {
-          assert.equal(value, 'updated value1');
-        });
     });
   });
 });
