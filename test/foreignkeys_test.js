@@ -1,7 +1,7 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
-import * as sqlutil from '../lib/sqlutil';
+import * as sqlutil from '../lib';
 
 chai.use(chaiAsPromised);
 let expect = chai.expect;
