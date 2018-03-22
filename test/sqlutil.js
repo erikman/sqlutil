@@ -36,6 +36,40 @@ describe('sqlutil', () => {
     });
   });
 
+  describe('query', () => {
+    let table;
+
+    beforeEach(() => {
+      db = new sqlutil.Db();
+
+      table = new sqlutil.Table(db, {
+        name: 'testtable',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true},
+          value: {type: sqlutil.DataType.FLOAT}
+        }
+      });
+
+      return db.open(':memory:')
+        .then(() => table.createTable());
+    });
+
+    function insertSomeData() {
+      return table.insert({name: 'key1', value: 42})
+        .then(() => table.insert({name: 'key2', value: 42}))
+        .then(() => table.insert({name: 'key3', value: 43}));
+    }
+
+    it('allows custom queries with get interface', async () => {
+      await insertSomeData();
+
+      let q = sqlutil.query(db, 'SELECT * from testtable WHERE name = "key1"');
+      let row = await q.get();
+      expect(row).to.deep.equal({id: 1, name: 'key1', value: 42});
+    });
+  });
+
   describe('table', () => {
     let table;
 
