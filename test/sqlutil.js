@@ -68,6 +68,137 @@ describe('sqlutil', () => {
       let row = await q.get();
       expect(row).to.deep.equal({id: 1, name: 'key1', value: 42});
     });
+
+    it('allows custom queries with params', async () => {
+      await insertSomeData();
+
+      let q = sqlutil.query(db, 'SELECT * from testtable WHERE name = $name', {
+        $name: 'key1'
+      });
+      let row = await q.get();
+      expect(row).to.deep.equal({id: 1, name: 'key1', value: 42});
+    });
+
+    it('can change params when getting', async () => {
+      await insertSomeData();
+
+      let q = sqlutil.query(db, 'SELECT * from testtable WHERE name = $name', {
+        $name: 'key1'
+      });
+      let row = await q.get({$name: 'key3'});
+      expect(row).to.deep.equal({id: 3, name: 'key3', value: 43});
+    });
+
+    it('can retrieve all results', async () => {
+      await insertSomeData();
+
+      let q = sqlutil.query(db, 'SELECT * from testtable WHERE value = $value', {
+        $value: 42
+      });
+      let row = await q.all();
+      expect(row).to.deep.equal([
+          {id: 1, name: 'key1', value: 42},
+          {id: 2, name: 'key2', value: 42}
+      ]);
+    });
+
+    it('can prepare statement', async () => {
+      await insertSomeData();
+
+      let q = sqlutil.query(db, 'SELECT * from testtable WHERE name = $name', {
+        $name: 'key1'
+      });
+      let sqlStatement = await q.prepare();
+      let row = await sqlStatement.getAsync();
+      expect(row).to.deep.equal({id: 1, name: 'key1', value: 42});
+    });
+
+    it('can stream results', async () => {
+      await insertSomeData();
+
+      let q = sqlutil.query(db, 'SELECT * from testtable WHERE value = $value', {
+        $value: 42
+      });
+      let sqlStream = q.stream();
+      return assert.eventually.lengthOf(streamutil.streamToArray(sqlStream), 2);
+    });
+  });
+
+  describe('statement', () => {
+    let table;
+
+    beforeEach(() => {
+      db = new sqlutil.Db();
+
+      table = new sqlutil.Table(db, {
+        name: 'testtable',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true},
+          value: {type: sqlutil.DataType.FLOAT}
+        }
+      });
+
+      return db.open(':memory:')
+        .then(() => table.createTable());
+    });
+
+    function insertSomeData() {
+      return table.insert({name: 'key1', value: 42})
+        .then(() => table.insert({name: 'key2', value: 42}))
+        .then(() => table.insert({name: 'key3', value: 43}));
+    }
+
+    it('allows custom queries with get interface', async () => {
+      await insertSomeData();
+
+      let q = await sqlutil.statement(db, 'SELECT * from testtable WHERE name = "key1"');
+      let row = await q.get();
+      expect(row).to.deep.equal({id: 1, name: 'key1', value: 42});
+    });
+
+    it('allows custom queries with params', async () => {
+      await insertSomeData();
+
+      let q = await sqlutil.statement(db, 'SELECT * from testtable WHERE name = $name', {
+        $name: 'key1'
+      });
+      let row = await q.get();
+      expect(row).to.deep.equal({id: 1, name: 'key1', value: 42});
+    });
+
+    it('can change params when getting', async () => {
+      await insertSomeData();
+
+      let q = await sqlutil.statement(db, 'SELECT * from testtable WHERE name = $name', {
+        $name: 'key1'
+      });
+      let row = await q.get({$name: 'key3'});
+      expect(row).to.deep.equal({id: 3, name: 'key3', value: 43});
+    });
+
+    it('can retrieve all results', async () => {
+      await insertSomeData();
+
+      let q = await sqlutil.statement(db, 'SELECT * from testtable WHERE value = $value', {
+        $value: 42
+      });
+      let row = await q.all();
+      expect(row).to.deep.equal([
+          {id: 1, name: 'key1', value: 42},
+          {id: 2, name: 'key2', value: 42}
+      ]);
+    });
+
+    it('can stream results', async () => {
+      await insertSomeData();
+
+      let q = await sqlutil.statement(db, 'SELECT * from testtable WHERE value = $value', {
+        $value: 42
+      });
+      let sqlStream = q.stream();
+      return assert.eventually.lengthOf(streamutil.streamToArray(sqlStream), 2);
+    });
   });
 
   describe('table', () => {
