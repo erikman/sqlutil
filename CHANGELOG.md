@@ -5,9 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.2.0] - 2018-04-02
 ### Added
 - Query class for interfacing with custom queries (like statements, but only for
   onetime use).
+- Statement class with same API as query class.
 
 ### Deprecated
 - SqlQuery class, renamed to BuildQuery
