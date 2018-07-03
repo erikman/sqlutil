@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.0.0] - 2018-07-03
+### Added
+- Bumped sqlite3 version to 4.0.1
+- Bumped dependencies to fix vulnerabilities
+
 ## [2.2.0] - 2018-04-02
 ### Added
 - Query class for interfacing with custom queries (like statements, but only for

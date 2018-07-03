@@ -1,6 +1,6 @@
 {
   "name": "sqlutil",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "Wrapper around sqlite for structured queries",
   "homepage": "https://github.com/erikman/sqlutil",
   "main": "dist/index.js",
@@ -11,8 +11,11 @@
     "build": "babel --compact true --minified --source-maps false -d dist/ lib",
     "build:debug": "babel -d dist/ lib",
     "lint": "eslint lib test",
-    "test": "mocha --require babel-polyfill --compilers js:babel-core/register test",
-    "prepare": "npm run build"
+    "test": "npm run test:snyk && npm run test:unittests",
+    "test:snyk": "snyk test",
+    "test:unittests": " mocha --require babel-polyfill --compilers js:babel-core/register test",
+    "prepare": "npm run snyk-protect; npm run build",
+    "snyk-protect": "snyk protect"
   },
   "keywords": [
     "sqlite",
@@ -28,10 +31,10 @@
   "repository": "erikman/sqlutil",
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-eslint": "^7.1.1",
     "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
+    "babel-preset-env": "^1.7.0",
     "babel-preset-stage-2": "^6.22.0",
     "babel-register": "^6.26.0",
     "chai": "^3.5.0",
@@ -39,11 +42,13 @@
     "eslint": "^3.15.0",
     "eslint-config-xo-space": "^0.15.0",
     "mocha": "^3.2.0",
-    "streamutil": "^1.0.0"
+    "streamutil": "^1.1.1"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
-    "lodash": "^4.17.4",
-    "sqlite3": "^3.1.13"
-  }
+    "lodash": "^4.17.10",
+    "sqlite3": "^4.0.1",
+    "snyk": "^1.88.0"
+  },
+  "snyk": true
 }
