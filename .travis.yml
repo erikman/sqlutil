@@ -5,7 +5,11 @@ node_js:
 cache:
   directories:
     - "node_modules"
-    
+
 script:
   - npm run lint
   - npm run test
+
+after_success:
+    - snyk monitor
+    
