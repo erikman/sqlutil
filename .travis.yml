@@ -8,8 +8,4 @@ cache:
 
 script:
   - npm run lint
-  - npm run test
-
-after_success:
-    - snyk monitor
-    
+  - npm run test    

@@ -11,11 +11,8 @@
     "build": "babel --compact true --minified --source-maps false -d dist/ lib",
     "build:debug": "babel -d dist/ lib",
     "lint": "eslint lib test",
-    "test": "npm run test:unittests && npm run test:snyk",
-    "test:snyk": "snyk test",
-    "test:unittests": " mocha --require babel-polyfill --compilers js:babel-core/register test",
-    "prepare": "npm run snyk-protect; npm run build",
-    "snyk-protect": "snyk protect"
+    "test": " mocha --require babel-polyfill --compilers js:babel-core/register test",
+    "prepare": "npm run build"
   },
   "keywords": [
     "sqlite",
@@ -46,8 +43,6 @@
   "dependencies": {
     "bluebird": "^3.5.2",
     "lodash": "^4.17.11",
-    "sqlite3": "^4.0.3",
-    "snyk": "^1.105.0"
-  },
-  "snyk": true
+    "sqlite3": "^4.0.3"
+  }
 }
