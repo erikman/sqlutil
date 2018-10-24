@@ -115,7 +115,7 @@ describe('table with foreign keys', () => {
 
     return newChildTable1.createTable()
       .then(() => expect(newChildTable2.createOrUpdateTable())
-            .to.eventually.deep.equal({wasCreated: false, wasUpdated: true}));
+        .to.eventually.deep.equal({wasCreated: false, wasUpdated: true}));
   });
 
   it('table should only be recreated when needed', () => {
@@ -147,10 +147,10 @@ describe('table with foreign keys', () => {
 
     return insertSomeData()
       .then(() => expect(newParentTable.createOrUpdateTable())
-            .to.eventually.deep.equal({wasCreated: false, wasUpdated: true}))
+        .to.eventually.deep.equal({wasCreated: false, wasUpdated: true}))
       .then(() => expect(newParentTable.find({name: 'Banan'}).get())
-            .to.eventually.deep.equal({id: 1, name: 'Banan', value: 3}))
+        .to.eventually.deep.equal({id: 1, name: 'Banan', value: 3}))
       .then(() => expect(childTable.find({value: 'Apa'}).get())
-            .to.eventually.deep.equal({id: 1, value: 'Apa', parentId: 1}));
+        .to.eventually.deep.equal({id: 1, value: 'Apa', parentId: 1}));
   });
 });

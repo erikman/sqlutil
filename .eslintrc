@@ -22,6 +22,7 @@
     ],
     "max-depth": "off",
     "max-nested-callbacks": "off",
-    "no-warning-comments": "off"
+    "no-warning-comments": "off",
+    "valid-jsdoc": "off"
   }
 }
