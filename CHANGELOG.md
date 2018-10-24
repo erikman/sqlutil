@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.1.0] - 2018-10-24
+### Changed
+- Fix bug when reading defaultValue from database for non integers.
+- Bump dependencies
+
 ## [3.0.0] - 2018-07-03
 ### Added
 - Bumped sqlite3 version to 4.0.1
