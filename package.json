@@ -11,7 +11,7 @@
     "build": "babel --compact true --minified --source-maps false -d dist/ lib",
     "build:debug": "babel -d dist/ lib",
     "lint": "eslint lib test",
-    "test": "npm run test:snyk && npm run test:unittests",
+    "test": "npm run test:unittests && npm run test:snyk",
     "test:snyk": "snyk test",
     "test:unittests": " mocha --require babel-polyfill --compilers js:babel-core/register test",
     "prepare": "npm run snyk-protect; npm run build",
