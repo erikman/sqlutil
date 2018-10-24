@@ -341,6 +341,57 @@ describe('sqlutil', () => {
         });
     });
 
+    it('should return correct result for getSchema when a column have default value \'\'', () => {
+      let defaultValueTable = new sqlutil.Table(db, {
+        name: 'defaultValueTableEmptyString',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true},
+          value: {type: sqlutil.DataType.TEXT, notNull: true, defaultValue: ''}
+        }
+      });
+
+      return defaultValueTable.createTable()
+        .then(() => defaultValueTable.getSchemaFromDatabase())
+        .then(decodedSchema => {
+          expect(decodedSchema.columns.value.defaultValue).to.equal('');
+        });
+    });
+
+    it('should return correct result for getSchema when a column have default value 0', () => {
+      let defaultValueTable = new sqlutil.Table(db, {
+        name: 'defaultValueTableEmptyString',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true},
+          value: {type: sqlutil.DataType.NUMERIC, notNull: true, defaultValue: 0}
+        }
+      });
+
+      return defaultValueTable.createTable()
+        .then(() => defaultValueTable.getSchemaFromDatabase())
+        .then(decodedSchema => {
+          expect(decodedSchema.columns.value.defaultValue).to.equal(0);
+        });
+    });
+
+    it('should return correct result for getSchema when a column have default value 0.1', () => {
+      let defaultValueTable = new sqlutil.Table(db, {
+        name: 'defaultValueTableEmptyString',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true},
+          value: {type: sqlutil.DataType.NUMERIC, notNull: true, defaultValue: 0.1}
+        }
+      });
+
+      return defaultValueTable.createTable()
+        .then(() => defaultValueTable.getSchemaFromDatabase())
+        .then(decodedSchema => {
+          expect(decodedSchema.columns.value.defaultValue).to.equal(0.1);
+        });
+    });
+
     it('should be possible to specify collate for columns', () => {
       let collateTable = new sqlutil.Table(db, {
         name: 'collateTable',
