@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/erikman/sqlutil.svg?branch=master)](https://travis-ci.org/erikman/sqlutil)
-[![Known Vulnerabilities](https://snyk.io/test/npm/sqlutil/badge.svg)](https://snyk.io/test/npm/sqlutil)
 
 # Wrapper for node-sqlite3
 

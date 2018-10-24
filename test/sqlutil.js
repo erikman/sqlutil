@@ -97,8 +97,8 @@ describe('sqlutil', () => {
       });
       let row = await q.all();
       expect(row).to.deep.equal([
-          {id: 1, name: 'key1', value: 42},
-          {id: 2, name: 'key2', value: 42}
+        {id: 1, name: 'key1', value: 42},
+        {id: 2, name: 'key2', value: 42}
       ]);
     });
 
@@ -185,8 +185,8 @@ describe('sqlutil', () => {
       });
       let row = await q.all();
       expect(row).to.deep.equal([
-          {id: 1, name: 'key1', value: 42},
-          {id: 2, name: 'key2', value: 42}
+        {id: 1, name: 'key1', value: 42},
+        {id: 2, name: 'key2', value: 42}
       ]);
     });
 
@@ -341,6 +341,57 @@ describe('sqlutil', () => {
         });
     });
 
+    it('should return correct result for getSchema when a column have default value \'\'', () => {
+      let defaultValueTable = new sqlutil.Table(db, {
+        name: 'defaultValueTableEmptyString',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true},
+          value: {type: sqlutil.DataType.TEXT, notNull: true, defaultValue: ''}
+        }
+      });
+
+      return defaultValueTable.createTable()
+        .then(() => defaultValueTable.getSchemaFromDatabase())
+        .then(decodedSchema => {
+          expect(decodedSchema.columns.value.defaultValue).to.equal('');
+        });
+    });
+
+    it('should return correct result for getSchema when a column have default value 0', () => {
+      let defaultValueTable = new sqlutil.Table(db, {
+        name: 'defaultValueTableEmptyString',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true},
+          value: {type: sqlutil.DataType.NUMERIC, notNull: true, defaultValue: 0}
+        }
+      });
+
+      return defaultValueTable.createTable()
+        .then(() => defaultValueTable.getSchemaFromDatabase())
+        .then(decodedSchema => {
+          expect(decodedSchema.columns.value.defaultValue).to.equal(0);
+        });
+    });
+
+    it('should return correct result for getSchema when a column have default value 0.1', () => {
+      let defaultValueTable = new sqlutil.Table(db, {
+        name: 'defaultValueTableEmptyString',
+        columns: {
+          id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
+          name: {type: sqlutil.DataType.TEXT, unique: true},
+          value: {type: sqlutil.DataType.NUMERIC, notNull: true, defaultValue: 0.1}
+        }
+      });
+
+      return defaultValueTable.createTable()
+        .then(() => defaultValueTable.getSchemaFromDatabase())
+        .then(decodedSchema => {
+          expect(decodedSchema.columns.value.defaultValue).to.equal(0.1);
+        });
+    });
+
     it('should be possible to specify collate for columns', () => {
       let collateTable = new sqlutil.Table(db, {
         name: 'collateTable',
@@ -484,10 +535,10 @@ describe('sqlutil', () => {
 
     it('should be possible to stream rows from the table', () => {
       return insertSomeData()
-          .then(() => {
-            let sqlStream = table.find({value: 42}).stream();
-            return assert.eventually.lengthOf(streamutil.streamToArray(sqlStream), 2);
-          });
+        .then(() => {
+          let sqlStream = table.find({value: 42}).stream();
+          return assert.eventually.lengthOf(streamutil.streamToArray(sqlStream), 2);
+        });
     });
 
     it('should be possible to stream rows into a table', () => {
@@ -506,11 +557,11 @@ describe('sqlutil', () => {
 
       return streamutil.waitForStream(sqlPipeline)
         .then(() => expect(table.find().orderBy(['name']).all())
-              .to.eventually.deep.equal([
-                {id: 1, name: 'key5', value: 62},
-                {id: 2, name: 'key6', value: 63},
-                {id: 3, name: 'key7', value: 64}
-              ]));
+          .to.eventually.deep.equal([
+            {id: 1, name: 'key5', value: 62},
+            {id: 2, name: 'key6', value: 63},
+            {id: 3, name: 'key7', value: 64}
+          ]));
     });
 
     it('should be possible to lookup unique fields with a stream', () => {
@@ -523,7 +574,7 @@ describe('sqlutil', () => {
             {name: 'key5'},
             {name: 'key6'},
             {name: 'key7', value: 1}, // Will override value from the table
-            {name: 'key8'} // does not exist
+            {name: 'key8'} // Does not exist
           ]);
 
           let sqlTransform = table.createExtendStream();
@@ -544,7 +595,7 @@ describe('sqlutil', () => {
 
             assert.isNumber(rows[2].id);
             assert.equal(rows[2].name, 'key7');
-            assert.equal(rows[2].value, 1); // overridden value
+            assert.equal(rows[2].value, 1); // Overridden value
 
             assert.isUndefined(rows[3].id);
             assert.equal(rows[3].name, 'key8');
@@ -569,9 +620,9 @@ describe('sqlutil', () => {
     it('should be possible to select using multiple matchers as separate find calls', () => {
       return insertSomeData()
         .then(() => table
-              .find({name: 'key1'})
-              .find({value: 42})
-              .get())
+          .find({name: 'key1'})
+          .find({value: 42})
+          .get())
         .then(row => {
           assert.isObject(row);
           assert.equal(row.name, 'key1');
@@ -615,21 +666,21 @@ describe('sqlutil', () => {
     it('should be possible to update rows', () => {
       return insertSomeData()
         .then(() => expect(table.insertUpdateUnique({name: 'key1', value: 50}))
-              .to.eventually.deep.equal({
-                id: 1,
-                name: 'key1',
-                value: 50
-              }));
+          .to.eventually.deep.equal({
+            id: 1,
+            name: 'key1',
+            value: 50
+          }));
     });
 
     it('should be possible to update rows with null values', () => {
       return insertSomeData()
         .then(() => expect(table.insertUpdateUnique({name: 'key1', value: null}))
-              .to.eventually.deep.equal({
-                id: 1,
-                name: 'key1',
-                value: null
-              }));
+          .to.eventually.deep.equal({
+            id: 1,
+            name: 'key1',
+            value: null
+          }));
     });
 
     it('should be possible to create unique rows', () => {
@@ -686,7 +737,7 @@ describe('sqlutil', () => {
 
     it('should be possible to add columns to the table', () => {
       let newTable = new sqlutil.Table(db, {
-        name: 'testtable', // same name as before
+        name: 'testtable', // Same name as before
         columns: {
           id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
           name: {type: sqlutil.DataType.TEXT, unique: true},
@@ -702,7 +753,7 @@ describe('sqlutil', () => {
 
     it('should be possible to remove columns from the table', () => {
       let newTable = new sqlutil.Table(db, {
-        name: 'testtable', // same name as before
+        name: 'testtable', // Same name as before
         columns: {
           id: {type: sqlutil.DataType.INTEGER, primaryKey: true},
           name: {type: sqlutil.DataType.TEXT, unique: true}
@@ -712,9 +763,9 @@ describe('sqlutil', () => {
 
       return insertSomeData()
         .then(() => expect(newTable.createOrUpdateTable())
-                           .to.eventually.deep.equal({wasCreated: false, wasUpdated: true}))
+          .to.eventually.deep.equal({wasCreated: false, wasUpdated: true}))
         .then(() => expect(newTable.find({name: 'key3'}).get())
-                           .to.eventually.deep.equal({id: 3, name: 'key3'}));
+          .to.eventually.deep.equal({id: 3, name: 'key3'}));
     });
   });
 });
